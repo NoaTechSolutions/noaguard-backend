@@ -14,26 +14,6 @@ public class DaycareResponse {
     private LocalDateTime updatedAt;
     private String updatedBy;
 
-    // Constructor vacío
-    public DaycareResponse() {}
-
-    public DaycareResponse(Long id, String name, String logoUrl, String phone,
-                           String email, AddressResponse address,
-                           LocalDateTime createdAt, LocalDateTime updatedAt,
-                           String updatedBy) {
-        this.id = id;
-        this.name = name;
-        this.logoUrl = logoUrl;
-        this.phone = phone;
-        this.email = email;
-        this.address = address;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.updatedBy = updatedBy;
-    }
-
-    // Getters y Setters
-
     public Long getId() {
         return id;
     }

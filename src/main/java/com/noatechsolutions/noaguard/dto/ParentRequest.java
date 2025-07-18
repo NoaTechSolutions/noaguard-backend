@@ -1,5 +1,6 @@
 package com.noatechsolutions.noaguard.dto;
 
+import com.noatechsolutions.noaguard.entity.Address;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -16,25 +17,22 @@ public class ParentRequest {
     @Size(max = 50)
     private String lastName;
 
-    @NotBlank
     @Email
+    @NotBlank
     private String email;
 
     @NotBlank
-    @Size(max = 20)
     private String phone;
 
     @Valid
-    private AddressRequest address;
+    @NotNull
+    private Address address;
 
     @NotNull
     private Long daycareId;
 
     @NotNull
     private Long studentId;
-
-    public ParentRequest() {
-    }
 
     public String getFirstName() {
         return firstName;
@@ -68,11 +66,11 @@ public class ParentRequest {
         this.phone = phone;
     }
 
-    public AddressRequest getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(AddressRequest address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

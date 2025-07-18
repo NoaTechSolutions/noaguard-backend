@@ -25,12 +25,15 @@ public class StudentRequest {
     private LocalDate birthdate;
 
     @Valid
+    @NotNull
     private AddressRequest address;
 
     @NotNull
     private Long daycareId;
 
     private Long teacherId;
+
+    private Long daycareAdminId;
 
     public String getFirstName() {
         return firstName;
@@ -86,5 +89,13 @@ public class StudentRequest {
 
     public void setTeacherId(Long teacherId) {
         this.teacherId = teacherId;
+    }
+
+    public Long getDaycareAdminId() {
+        return daycareAdminId;
+    }
+
+    public void setDaycareAdminId(Long daycareAdminId) {
+        this.daycareAdminId = daycareAdminId;
     }
 }

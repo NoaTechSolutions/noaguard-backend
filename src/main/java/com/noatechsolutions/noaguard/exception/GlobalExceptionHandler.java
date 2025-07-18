@@ -12,7 +12,15 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Maneja RuntimeException y devuelve un error 400 con el mensaje
+    // Maneja ResourceNotFoundException (ej: "Parent not found")
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // Maneja RuntimeException y devuelve error 400
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
         Map<String, String> error = new HashMap<>();
@@ -20,7 +28,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // Maneja errores de validación (@Valid) y devuelve cada campo con su mensaje de error
+    // Maneja errores de validación (@Valid) y devuelve campo + mensaje
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -30,12 +38,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    // Maneja cualquier otra excepción no capturada y responde con error 500 genérico
+    // Captura cualquier excepción no manejada explícitamente
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Internal server error");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
-
 }

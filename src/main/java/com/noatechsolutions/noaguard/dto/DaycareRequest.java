@@ -23,8 +23,6 @@ public class DaycareRequest {
     @Valid
     private AddressRequest address;
 
-    // Getters y Setters
-
     public String getName() {
         return name;
     }

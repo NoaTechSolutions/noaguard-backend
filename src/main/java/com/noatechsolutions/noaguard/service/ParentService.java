@@ -7,9 +7,14 @@ import com.noatechsolutions.noaguard.dto.ParentUpdateRequest;
 import java.util.List;
 
 public interface ParentService {
+
     ParentResponse createParent(ParentRequest request);
-    List<ParentResponse> getAllParents();
+
     ParentResponse getParentById(Long id);
+
+    List<ParentResponse> getAllParents();
+
     ParentResponse updateParent(Long id, ParentUpdateRequest request);
+
     void deleteParent(Long id);
 }

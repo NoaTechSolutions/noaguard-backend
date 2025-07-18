@@ -47,6 +47,10 @@ public class Student {
     @JoinColumn(name = "teacher_id")
     private User teacher;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "daycare_admin_id")
+    private User daycareAdmin;
+
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Parent> parents;
 
@@ -56,6 +60,7 @@ public class Student {
 
     private String updatedBy;
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -118,6 +123,14 @@ public class Student {
 
     public void setTeacher(User teacher) {
         this.teacher = teacher;
+    }
+
+    public User getDaycareAdmin() {
+        return daycareAdmin;
+    }
+
+    public void setDaycareAdmin(User daycareAdmin) {
+        this.daycareAdmin = daycareAdmin;
     }
 
     public List<Parent> getParents() {

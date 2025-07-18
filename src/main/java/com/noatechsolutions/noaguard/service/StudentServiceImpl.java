@@ -1,14 +1,13 @@
 package com.noatechsolutions.noaguard.service;
 
-import com.noatechsolutions.noaguard.dto.AddressResponse;
 import com.noatechsolutions.noaguard.dto.StudentRequest;
 import com.noatechsolutions.noaguard.dto.StudentResponse;
 import com.noatechsolutions.noaguard.dto.StudentUpdateRequest;
-import com.noatechsolutions.noaguard.entity.Address;
 import com.noatechsolutions.noaguard.entity.Daycare;
 import com.noatechsolutions.noaguard.entity.Student;
 import com.noatechsolutions.noaguard.entity.User;
 import com.noatechsolutions.noaguard.exception.ResourceNotFoundException;
+import com.noatechsolutions.noaguard.mapper.StudentMapper;
 import com.noatechsolutions.noaguard.repository.DaycareRepository;
 import com.noatechsolutions.noaguard.repository.StudentRepository;
 import com.noatechsolutions.noaguard.repository.UserRepository;
@@ -34,92 +33,79 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentResponse createStudent(StudentRequest request) {
         Daycare daycare = daycareRepository.findById(request.getDaycareId())
-                .orElseThrow(() -> new ResourceNotFoundException("Daycare not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Daycare not found with id " + request.getDaycareId()));
 
         User teacher = null;
         if (request.getTeacherId() != null) {
             teacher = userRepository.findById(request.getTeacherId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id " + request.getTeacherId()));
         }
 
-        Student student = new Student();
-        student.setFirstName(request.getFirstName());
-        student.setLastName(request.getLastName());
-        student.setNickname(request.getNickname());
-        student.setBirthdate(request.getBirthdate());
-        student.setAddress(new Address(request.getAddress()));
-        student.setDaycare(daycare);
-        student.setTeacher(teacher);
+        User daycareAdmin = null;
+        if (request.getDaycareAdminId() != null) {
+            daycareAdmin = userRepository.findById(request.getDaycareAdminId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Daycare admin not found with id " + request.getDaycareAdminId()));
+        }
+
+        Student student = StudentMapper.toEntity(request, daycare, teacher, daycareAdmin);
         student.setCreatedAt(LocalDateTime.now());
+        student.setUpdatedAt(LocalDateTime.now());
 
-        student = studentRepository.save(student);
+        studentRepository.save(student);
 
-        return mapToResponse(student);
-    }
-
-    @Override
-    public StudentResponse getStudentById(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        return mapToResponse(student);
-    }
-
-    @Override
-    public List<StudentResponse> getAllStudents() {
-        return studentRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return StudentMapper.toResponse(student);
     }
 
     @Override
     public StudentResponse updateStudent(Long id, StudentUpdateRequest request) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + id));
 
-        if (request.getFirstName() != null) student.setFirstName(request.getFirstName());
-        if (request.getLastName() != null) student.setLastName(request.getLastName());
-        if (request.getNickname() != null) student.setNickname(request.getNickname());
-        if (request.getBirthdate() != null) student.setBirthdate(request.getBirthdate());
-
-        if (request.getAddress() != null) {
-            student.setAddress(new Address(request.getAddress()));
-        }
-
+        Daycare daycare = null;
         if (request.getDaycareId() != null) {
-            Daycare daycare = daycareRepository.findById(request.getDaycareId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Daycare not found"));
-            student.setDaycare(daycare);
+            daycare = daycareRepository.findById(request.getDaycareId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Daycare not found with id " + request.getDaycareId()));
         }
 
+        User teacher = null;
         if (request.getTeacherId() != null) {
-            User teacher = userRepository.findById(request.getTeacherId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
-            student.setTeacher(teacher);
+            teacher = userRepository.findById(request.getTeacherId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id " + request.getTeacherId()));
         }
 
+        User daycareAdmin = null;
+        if (request.getDaycareAdminId() != null) {
+            daycareAdmin = userRepository.findById(request.getDaycareAdminId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Daycare admin not found with id " + request.getDaycareAdminId()));
+        }
+
+        StudentMapper.updateEntity(student, request, daycare, teacher, daycareAdmin);
         student.setUpdatedAt(LocalDateTime.now());
 
-        return mapToResponse(studentRepository.save(student));
+        studentRepository.save(student);
+
+        return StudentMapper.toResponse(student);
+    }
+
+    @Override
+    public StudentResponse getStudentById(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + id));
+        return StudentMapper.toResponse(student);
+    }
+
+    @Override
+    public List<StudentResponse> getAllStudents() {
+        return studentRepository.findAll().stream()
+                .map(StudentMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deleteStudent(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        studentRepository.delete(student);
-    }
-
-    private StudentResponse mapToResponse(Student s) {
-        StudentResponse res = new StudentResponse();
-        res.setId(s.getId());
-        res.setFirstName(s.getFirstName());
-        res.setLastName(s.getLastName());
-        res.setNickname(s.getNickname());
-        res.setBirthdate(s.getBirthdate());
-        res.setAddress(new AddressResponse(s.getAddress()));
-        res.setDaycareId(s.getDaycare().getId());
-        res.setTeacherId(s.getTeacher() != null ? s.getTeacher().getId() : null);
-        return res;
+        if (!studentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Student not found with id " + id);
+        }
+        studentRepository.deleteById(id);
     }
 }

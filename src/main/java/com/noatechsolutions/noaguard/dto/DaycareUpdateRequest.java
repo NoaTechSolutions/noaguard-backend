@@ -1,19 +1,23 @@
 package com.noatechsolutions.noaguard.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+
 public class DaycareUpdateRequest {
 
+    @Size(max = 100)
     private String name;
 
     private String logoUrl;
 
     private String phone;
 
+    @Email
     private String email;
 
+    @Valid
     private AddressRequest address;
-
-    public DaycareUpdateRequest() {
-    }
 
     public String getName() {
         return name;

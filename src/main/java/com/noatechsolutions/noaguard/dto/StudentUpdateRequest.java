@@ -1,16 +1,29 @@
 package com.noatechsolutions.noaguard.dto;
 
+import jakarta.validation.Valid;
+
 import java.time.LocalDate;
 
 public class StudentUpdateRequest {
 
     private String firstName;
+
     private String lastName;
+
     private String nickname;
+
     private LocalDate birthdate;
+
+    @Valid
     private AddressRequest address;
+
     private Long daycareId;
+
     private Long teacherId;
+
+    private Long daycareAdminId;
+
+    // Getters and setters
 
     public String getFirstName() {
         return firstName;
@@ -66,5 +79,13 @@ public class StudentUpdateRequest {
 
     public void setTeacherId(Long teacherId) {
         this.teacherId = teacherId;
+    }
+
+    public Long getDaycareAdminId() {
+        return daycareAdminId;
+    }
+
+    public void setDaycareAdminId(Long daycareAdminId) {
+        this.daycareAdminId = daycareAdminId;
     }
 }

@@ -5,6 +5,7 @@ import com.noatechsolutions.noaguard.dto.DaycareResponse;
 import com.noatechsolutions.noaguard.dto.DaycareUpdateRequest;
 import com.noatechsolutions.noaguard.service.DaycareService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,13 +24,7 @@ public class DaycareController {
     @PostMapping
     public ResponseEntity<DaycareResponse> createDaycare(@Valid @RequestBody DaycareRequest request) {
         DaycareResponse response = daycareService.createDaycare(request);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<DaycareResponse>> getAllDaycares() {
-        List<DaycareResponse> daycares = daycareService.getAllDaycares();
-        return ResponseEntity.ok(daycares);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -38,9 +33,14 @@ public class DaycareController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<DaycareResponse>> getAllDaycares() {
+        List<DaycareResponse> list = daycareService.getAllDaycares();
+        return ResponseEntity.ok(list);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<DaycareResponse> updateDaycare(@PathVariable Long id,
-                                                         @Valid @RequestBody DaycareUpdateRequest request) {
+    public ResponseEntity<DaycareResponse> updateDaycare(@PathVariable Long id, @Valid @RequestBody DaycareUpdateRequest request) {
         DaycareResponse response = daycareService.updateDaycare(id, request);
         return ResponseEntity.ok(response);
     }
