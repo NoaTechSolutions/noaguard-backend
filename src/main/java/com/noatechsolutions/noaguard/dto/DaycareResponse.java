@@ -1,54 +1,26 @@
-package com.noatechsolutions.noaguard.entity;
-
-import jakarta.persistence.*;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package com.noatechsolutions.noaguard.dto;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tb_daycare")
-public class Daycare {
+public class DaycareResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank
-    @Size(max = 100)
     private String name;
-
     private String logoUrl;
-
-    @NotBlank
     private String phone;
-
-    @NotBlank
-    @Email
     private String email;
-
-    @Embedded
-    @Valid
-    private Address address;
-
+    private AddressResponse address;
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     private String updatedBy;
 
     // Constructor vacío
-    public Daycare() {
-    }
+    public DaycareResponse() {}
 
-    // Constructor completo
-    public Daycare(Long id, String name, String logoUrl, String phone, String email, Address address,
-                   LocalDateTime createdAt, LocalDateTime updatedAt, String updatedBy) {
+    public DaycareResponse(Long id, String name, String logoUrl, String phone,
+                           String email, AddressResponse address,
+                           LocalDateTime createdAt, LocalDateTime updatedAt,
+                           String updatedBy) {
         this.id = id;
         this.name = name;
         this.logoUrl = logoUrl;
@@ -102,11 +74,11 @@ public class Daycare {
         this.email = email;
     }
 
-    public Address getAddress() {
+    public AddressResponse getAddress() {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(AddressResponse address) {
         this.address = address;
     }
 

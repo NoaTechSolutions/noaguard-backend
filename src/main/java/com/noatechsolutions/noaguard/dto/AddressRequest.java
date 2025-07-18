@@ -1,15 +1,9 @@
-package com.noatechsolutions.noaguard.entity;
+package com.noatechsolutions.noaguard.dto;
 
-import com.noatechsolutions.noaguard.dto.AddressRequest;
-import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Embeddable
-public class Address {
+public class AddressRequest {
 
     @NotBlank
     @Size(max = 100)
@@ -24,28 +18,14 @@ public class Address {
     private String state;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 10)
     private String zipCode;
 
     @NotBlank
     @Size(max = 50)
     private String country;
 
-    // Constructor vacío
-    public Address() {
-    }
-
-    // Constructor desde AddressRequest
-    public Address(AddressRequest request) {
-        this.street = request.getStreet();
-        this.city = request.getCity();
-        this.state = request.getState();
-        this.zipCode = request.getZipCode();
-        this.country = request.getCountry();
-    }
-
-    // Getters y setters
-
+    // Getters y Setters
     public String getStreet() { return street; }
     public void setStreet(String street) { this.street = street; }
 
