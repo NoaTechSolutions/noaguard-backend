@@ -3,6 +3,7 @@ package com.noatechsolutions.noaguard.security.auth;
 import com.noatechsolutions.noaguard.entity.Role;
 import com.noatechsolutions.noaguard.entity.User;
 import com.noatechsolutions.noaguard.enums.RoleType;
+import com.noatechsolutions.noaguard.exception.ResourceNotFoundException;
 import com.noatechsolutions.noaguard.repository.RoleRepository;
 import com.noatechsolutions.noaguard.repository.UserRepository;
 import com.noatechsolutions.noaguard.security.jwt.JwtService;
@@ -10,22 +11,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class AuthService {
+public class AuthenticationService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository,
-                       RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtService jwtService) {
+    public AuthenticationService(UserRepository userRepository,
+                                 RoleRepository roleRepository,
+                                 PasswordEncoder passwordEncoder,
+                                 JwtService jwtService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -37,8 +38,30 @@ public class AuthService {
             throw new RuntimeException("Email already registered");
         }
 
-        Role role = roleRepository.findByName(RoleType.DAYCARE_ADMIN)
-                .orElseThrow(() -> new RuntimeException("Role DAYCARE_ADMIN not found"));
+        List<Role> roles;
+
+        if (request.getRoles() == null || request.getRoles().isEmpty()) {
+            // Asignar rol por defecto
+            Role defaultRole = roleRepository.findByName(RoleType.DAYCARE_ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Role DAYCARE_ADMIN not found"));
+            roles = List.of(defaultRole);
+        } else {
+            roles = request.getRoles().stream()
+                    .map(roleString -> {
+                        // Convertir el string a RoleType enum
+                        RoleType roleEnum;
+                        try {
+                            roleEnum = RoleType.valueOf(roleString);
+                        } catch (IllegalArgumentException e) {
+                            throw new RuntimeException("Invalid role: " + roleString);
+                        }
+
+                        // Buscar el Role en la base de datos
+                        return roleRepository.findByName(roleEnum)
+                                .orElseThrow(() -> new RuntimeException("Role not found: " + roleString));
+                    })
+                    .collect(Collectors.toList());
+        }
 
         User user = new User();
         user.setEmail(request.getEmail());
@@ -49,7 +72,7 @@ public class AuthService {
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setRoles(Collections.singletonList(role));
+        user.setRoles(roles);
 
         userRepository.save(user);
 
@@ -57,7 +80,7 @@ public class AuthService {
                 user.getEmail(),
                 Map.of("roles",
                         user.getRoles().stream()
-                                .map(r -> r.getName().name())
+                                .map(role -> role.getName().name())
                                 .collect(Collectors.toList())
                 )
         );

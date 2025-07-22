@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_user")
@@ -14,40 +16,62 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, length = 50)
     private String firstName;
+
+    @Column(nullable = false, length = 50)
     private String lastName;
+
+    @Column(length = 50)
     private String nickname;
-    private Boolean active;
+
+    @Column(nullable = false)
+    private boolean active = true;
 
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
+    @Column(length = 100)
+    private String updatedBy;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "tb_user_roles",
+            name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles = new ArrayList<>();
 
     // Constructores
-    public User() {}
 
-    public User(String email, String password, String firstName, String lastName, String nickname, Boolean active) {
+    public User() {
+    }
+
+    public User(String email, String password, String firstName, String lastName, String nickname, boolean active) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.nickname = nickname;
         this.active = active;
+        this.createdAt = LocalDateTime.now();
     }
 
     // Getters y Setters
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -90,17 +114,11 @@ public class User {
         this.nickname = nickname;
     }
 
-    // Getter para el Boolean active
-    public Boolean getActive() {
+    public boolean isActive() {
         return active;
     }
 
-    // Getter para boolean primitivo para uso como isActive()
-    public boolean isActive() {
-        return active != null && active;
-    }
-
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
@@ -126,5 +144,13 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

@@ -1,73 +1,41 @@
 package com.noatechsolutions.noaguard.security.auth;
 
+import com.noatechsolutions.noaguard.enums.RoleType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+import java.util.Set;
+
+
 public class RegisterRequest {
-    @Email(message = "Email must be valid")
-    @NotBlank(message = "Email is required")
+
     private String email;
-
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
-
-    @NotBlank(message = "First name is required")
     private String firstName;
-
-    @NotBlank(message = "Last name is required")
     private String lastName;
-
-    private String nickname;;
+    private String nickname;
+    private List<String> roles;
 
     public RegisterRequest() {}
 
-    public RegisterRequest(String email, String password, String firstName, String lastName, String nickname) {
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.nickname = nickname;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
 }

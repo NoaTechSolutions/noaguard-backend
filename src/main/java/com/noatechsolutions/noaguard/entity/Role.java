@@ -14,25 +14,16 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)  // Muy importante!
+    @Column(length = 20, unique = true, nullable = false)
     private RoleType name;
 
-    private String description;
-
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users = new ArrayList<>();
-
-    // Constructores
-    public Role() {}
-
-    public Role(RoleType name, String description) {
-        this.name = name;
-        this.description = description;
-    }
-
-    // Getters y Setters
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public RoleType getName() {
@@ -41,21 +32,5 @@ public class Role {
 
     public void setName(RoleType name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
     }
 }

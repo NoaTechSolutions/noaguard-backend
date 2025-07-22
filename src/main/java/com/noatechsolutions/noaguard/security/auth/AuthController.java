@@ -22,16 +22,16 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final AuthService authService;
+    private final AuthenticationService authenticationService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
                           UserDetailsServiceImpl userDetailsService,
-                          AuthService authService) {
+                          AuthenticationService authenticationService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        this.authService = authService;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/login")
@@ -43,20 +43,20 @@ public class AuthController {
                 )
         );
 
-        var userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        var token = jwtService.generateToken(
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        String jwt = jwtService.generateToken(
                 userDetails.getUsername(),
                 Map.of("roles", userDetails.getAuthorities()
                         .stream()
-                        .map(auth -> auth.getAuthority())
+                        .map(authority -> authority.getAuthority())
                         .collect(Collectors.toList()))
         );
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(jwt));
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+        return ResponseEntity.ok(authenticationService.register(request));
     }
 }
