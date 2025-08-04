@@ -18,7 +18,8 @@ public class DaycareMapper {
         daycare.setLogoUrl(request.getLogoUrl());
         daycare.setPhone(request.getPhone());
         daycare.setEmail(request.getEmail());
-        daycare.setAddress(addressRequestToAddress(request.getAddress()));
+        daycare.setAddress(addressRequestToAddress(request.getAddress())); // ✅ Ahora recibe AddressRequest
+        // admin se asigna en el servicio
         return daycare;
     }
 
@@ -30,7 +31,10 @@ public class DaycareMapper {
         response.setLogoUrl(daycare.getLogoUrl());
         response.setPhone(daycare.getPhone());
         response.setEmail(daycare.getEmail());
-        response.setAddress(addressToResponse(daycare.getAddress()));
+        response.setAddress(addressToResponse(daycare.getAddress())); // ✅ Devuelve AddressResponse
+        if (daycare.getAdmin() != null) {
+            response.setAdminId(daycare.getAdmin().getId());
+        }
         response.setCreatedAt(daycare.getCreatedAt());
         response.setUpdatedAt(daycare.getUpdatedAt());
         response.setUpdatedBy(daycare.getUpdatedBy());

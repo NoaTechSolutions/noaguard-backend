@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -39,4 +40,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
         )
     """)
     Page<User> findBySearchAndRole(@Param("search") String search, @Param("role") RoleType role, Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role.name = :roleName")
+    List<User> findAllByRoleName(@Param("roleName") RoleType roleName);
+
 }

@@ -3,6 +3,8 @@ package com.noatechsolutions.noaguard.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_user")
@@ -40,6 +42,9 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Daycare> daycares = new ArrayList<>();
 
     // Constructores
 
@@ -144,5 +149,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Daycare> getDaycares() {
+        return daycares;
+    }
+
+    public void setDaycares(List<Daycare> daycares) {
+        this.daycares = daycares;
     }
 }

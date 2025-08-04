@@ -5,9 +5,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -36,6 +33,10 @@ public class Daycare {
     @Valid
     private Address address;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", nullable = false)
+    private User admin;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -48,13 +49,14 @@ public class Daycare {
 
     // Constructor completo
     public Daycare(Long id, String name, String logoUrl, String phone, String email, Address address,
-                   LocalDateTime createdAt, LocalDateTime updatedAt, String updatedBy) {
+                   User admin, LocalDateTime createdAt, LocalDateTime updatedAt, String updatedBy) {
         this.id = id;
         this.name = name;
         this.logoUrl = logoUrl;
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.admin = admin;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
@@ -110,6 +112,14 @@ public class Daycare {
         this.address = address;
     }
 
+    public User getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(User admin) {
+        this.admin = admin;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -132,5 +142,17 @@ public class Daycare {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    // Eventos de persistencia para timestamps automáticos
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

@@ -19,6 +19,9 @@ public class DaycareUpdateRequest {
     @Valid
     private AddressRequest address;
 
+    // Solo para SUPER_ADMIN: cambiar admin de un daycare
+    private Long adminId;
+
     public String getName() {
         return name;
     }
@@ -57,5 +60,13 @@ public class DaycareUpdateRequest {
 
     public void setAddress(AddressRequest address) {
         this.address = address;
+    }
+
+    public Long getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
     }
 }

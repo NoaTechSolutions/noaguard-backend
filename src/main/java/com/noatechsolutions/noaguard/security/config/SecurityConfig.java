@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/roles/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/users/**").hasAnyRole("SUPER_ADMIN", "DAYCARE_ADMIN")
+                        .requestMatchers("/api/daycares/**").hasAnyRole("SUPER_ADMIN", "DAYCARE_ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -56,7 +58,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // Ajusta a tu frontend
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // Ajustar según frontend
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         source.registerCorsConfiguration("/**", config);
