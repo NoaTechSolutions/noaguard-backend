@@ -1,7 +1,6 @@
 package com.noatechsolutions.noaguard.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class UserResponse {
 
@@ -13,7 +12,7 @@ public class UserResponse {
     private boolean active;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Long> roleIds;
+    private Long roleId;
 
     public UserResponse() {}
 
@@ -81,11 +80,11 @@ public class UserResponse {
         this.updatedAt = updatedAt;
     }
 
-    public List<Long> getRoleIds() {
-        return roleIds;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRoleIds(List<Long> roleIds) {
-        this.roleIds = roleIds;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 }

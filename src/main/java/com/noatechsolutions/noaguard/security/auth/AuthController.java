@@ -1,19 +1,16 @@
 package com.noatechsolutions.noaguard.security.auth;
 
+import com.noatechsolutions.noaguard.entity.User;
+import com.noatechsolutions.noaguard.enums.RoleType;
 import com.noatechsolutions.noaguard.security.jwt.JwtService;
 import com.noatechsolutions.noaguard.service.UserDetailsServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,16 +40,25 @@ public class AuthController {
                 )
         );
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        // Aquí accedemos al User completo
+        User user = authenticationService.findByEmail(request.getEmail());
+
         String jwt = jwtService.generateToken(
-                userDetails.getUsername(),
-                Map.of("roles", userDetails.getAuthorities()
-                        .stream()
-                        .map(authority -> authority.getAuthority())
-                        .collect(Collectors.toList()))
+                user.getEmail(),
+                Map.of("role", user.getRole().getName().name())
         );
 
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        AuthResponse response = new AuthResponse(
+                jwt,
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getNickname(),
+                user.getRole().getName().name()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")

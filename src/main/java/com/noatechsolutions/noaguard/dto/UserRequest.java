@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
-
 public class UserRequest {
 
     @NotBlank
@@ -31,7 +29,7 @@ public class UserRequest {
     private Boolean active;
 
     @NotNull
-    private List<Long> roleIds;
+    private Long roleId;
 
     // Getters y Setters
 
@@ -83,11 +81,11 @@ public class UserRequest {
         this.active = active;
     }
 
-    public List<Long> getRoleIds() {
-        return roleIds;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRoleIds(List<Long> roleIds) {
-        this.roleIds = roleIds;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 }

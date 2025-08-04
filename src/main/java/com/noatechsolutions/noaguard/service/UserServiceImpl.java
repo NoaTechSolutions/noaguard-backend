@@ -5,19 +5,14 @@ import com.noatechsolutions.noaguard.dto.UserResponse;
 import com.noatechsolutions.noaguard.dto.UserUpdateRequest;
 import com.noatechsolutions.noaguard.entity.Role;
 import com.noatechsolutions.noaguard.entity.User;
-import com.noatechsolutions.noaguard.exception.ResourceNotFoundException;
 import com.noatechsolutions.noaguard.repository.RoleRepository;
 import com.noatechsolutions.noaguard.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -42,11 +37,12 @@ public class UserServiceImpl implements UserService {
         user.setActive(request.getActive() != null ? request.getActive() : true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setUpdatedBy("system"); // Puedes reemplazar por el usuario autenticado si aplica
+        user.setUpdatedBy("system");
 
-        if (request.getRoleIds() != null && !request.getRoleIds().isEmpty()) {
-            List<Role> roles = roleRepository.findAllById(request.getRoleIds());
-            user.setRoles(roles);
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found with id " + request.getRoleId()));
+            user.setRole(role);
         }
 
         User savedUser = userRepository.save(user);
@@ -64,13 +60,14 @@ public class UserServiceImpl implements UserService {
         if (request.getLastName() != null) user.setLastName(request.getLastName());
         if (request.getNickname() != null) user.setNickname(request.getNickname());
         if (request.getActive() != null) user.setActive(request.getActive());
-        if (request.getRoleIds() != null) {
-            List<Role> roles = roleRepository.findAllById(request.getRoleIds());
-            user.setRoles(roles);
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new EntityNotFoundException("Role not found with id " + request.getRoleId()));
+            user.setRole(role);
         }
 
         user.setUpdatedAt(LocalDateTime.now());
-        user.setUpdatedBy("system"); // Puedes reemplazar por quien lo modificó
+        user.setUpdatedBy("system");
 
         User updatedUser = userRepository.save(user);
         return toResponse(updatedUser);
@@ -88,7 +85,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll()
                 .stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -110,11 +107,10 @@ public class UserServiceImpl implements UserService {
         response.setCreatedAt(user.getCreatedAt());
         response.setUpdatedAt(user.getUpdatedAt());
 
-        // Solo los IDs de roles
-        List<Long> roleIds = user.getRoles().stream()
-                .map(Role::getId)
-                .collect(Collectors.toList());
-        response.setRoleIds(roleIds);
+        // Rol único
+        if (user.getRole() != null) {
+            response.setRoleId(user.getRole().getId());
+        }
 
         return response;
     }

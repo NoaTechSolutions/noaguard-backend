@@ -11,9 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationService {
@@ -38,30 +36,15 @@ public class AuthenticationService {
             throw new RuntimeException("Email already registered");
         }
 
-        List<Role> roles;
-
-        if (request.getRoles() == null || request.getRoles().isEmpty()) {
-            // Asignar rol por defecto
-            Role defaultRole = roleRepository.findByName(RoleType.DAYCARE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Role DAYCARE_ADMIN not found"));
-            roles = List.of(defaultRole);
-        } else {
-            roles = request.getRoles().stream()
-                    .map(roleString -> {
-                        // Convertir el string a RoleType enum
-                        RoleType roleEnum;
-                        try {
-                            roleEnum = RoleType.valueOf(roleString);
-                        } catch (IllegalArgumentException e) {
-                            throw new RuntimeException("Invalid role: " + roleString);
-                        }
-
-                        // Buscar el Role en la base de datos
-                        return roleRepository.findByName(roleEnum)
-                                .orElseThrow(() -> new RuntimeException("Role not found: " + roleString));
-                    })
-                    .collect(Collectors.toList());
+        RoleType roleType;
+        try {
+            roleType = RoleType.valueOf(request.getRole());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role: " + request.getRole());
         }
+
+        Role role = roleRepository.findByName(roleType)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + request.getRole()));
 
         User user = new User();
         user.setEmail(request.getEmail());
@@ -72,19 +55,20 @@ public class AuthenticationService {
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setRoles(roles);
+        user.setRole(role);
 
         userRepository.save(user);
 
         String token = jwtService.generateToken(
                 user.getEmail(),
-                Map.of("roles",
-                        user.getRoles().stream()
-                                .map(role -> role.getName().name())
-                                .collect(Collectors.toList())
-                )
+                Map.of("role", user.getRole().getName().name())
         );
 
         return new RegisterResponse(token);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 }

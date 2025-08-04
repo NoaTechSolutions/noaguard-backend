@@ -1,13 +1,12 @@
 package com.noatechsolutions.noaguard.security.auth;
 
-import com.noatechsolutions.noaguard.entity.Role;
 import com.noatechsolutions.noaguard.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -19,10 +18,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Importante: "ROLE_" debe estar antes del nombre del rol para que Spring Security lo reconozca
-        return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toList());
+        // "ROLE_" es requerido por Spring Security
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().name()));
     }
 
     @Override
@@ -37,17 +34,17 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // puedes adaptar si manejas expiración
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // puedes adaptar si manejas bloqueo
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // puedes adaptar si manejas expiración de credenciales
+        return true;
     }
 
     @Override

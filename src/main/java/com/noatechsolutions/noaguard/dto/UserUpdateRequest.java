@@ -3,8 +3,6 @@ package com.noatechsolutions.noaguard.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
-
 public class UserUpdateRequest {
 
     @Email
@@ -24,7 +22,7 @@ public class UserUpdateRequest {
 
     private Boolean active;
 
-    private List<Long> roleIds;
+    private Long roleId;
 
     // Getters y Setters
 
@@ -76,11 +74,11 @@ public class UserUpdateRequest {
         this.active = active;
     }
 
-    public List<Long> getRoleIds() {
-        return roleIds;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRoleIds(List<Long> roleIds) {
-        this.roleIds = roleIds;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 }

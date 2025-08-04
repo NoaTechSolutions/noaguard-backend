@@ -1,23 +1,32 @@
 package com.noatechsolutions.noaguard.security.auth;
 
-import com.noatechsolutions.noaguard.enums.RoleType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-
-import java.util.List;
-import java.util.Set;
-
 
 public class RegisterRequest {
 
+    @NotBlank
+    @Email
     private String email;
+
+    @NotBlank
+    @Size(min = 6)
     private String password;
+
+    @NotBlank
+    @Size(max = 50)
     private String firstName;
+
+    @NotBlank
+    @Size(max = 50)
     private String lastName;
+
+    @Size(max = 50)
     private String nickname;
-    private List<String> roles;
+
+    @NotBlank
+    private String role;
 
     public RegisterRequest() {}
 
@@ -36,6 +45,6 @@ public class RegisterRequest {
     public String getNickname() { return nickname; }
     public void setNickname(String nickname) { this.nickname = nickname; }
 
-    public List<String> getRoles() { return roles; }
-    public void setRoles(List<String> roles) { this.roles = roles; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }
