@@ -1,6 +1,7 @@
 package com.noatechsolutions.noaguard.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class AddressRequest {
@@ -18,14 +19,20 @@ public class AddressRequest {
     private String state;
 
     @NotBlank
-    @Size(max = 10)
+    @Size(max = 20)
     private String zipCode;
 
     @NotBlank
     @Size(max = 50)
     private String country;
 
-    // Getters y Setters
+    @NotNull
+    private Long entityId;
+
+    @NotBlank
+    @Size(max = 50)
+    private String entityType;
+
     public String getStreet() { return street; }
     public void setStreet(String street) { this.street = street; }
 
@@ -40,4 +47,10 @@ public class AddressRequest {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    public Long getEntityId() { return entityId; }
+    public void setEntityId(Long entityId) { this.entityId = entityId; }
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
 }

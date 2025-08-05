@@ -5,14 +5,14 @@ import com.noatechsolutions.noaguard.dto.DaycareResponse;
 import com.noatechsolutions.noaguard.dto.DaycareUpdateRequest;
 import com.noatechsolutions.noaguard.service.DaycareService;
 import jakarta.validation.Valid;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/daycares")
-@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'DAYCARE_ADMIN')")
 public class DaycareController {
 
     private final DaycareService daycareService;
@@ -22,28 +22,28 @@ public class DaycareController {
     }
 
     @PostMapping
-    public DaycareResponse createDaycare(@Valid @RequestBody DaycareRequest request) {
-        return daycareService.createDaycare(request);
+    public ResponseEntity<DaycareResponse> createDaycare(@Valid @RequestBody DaycareRequest request) {
+        return new ResponseEntity<>(daycareService.createDaycare(request), HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DaycareResponse> updateDaycare(@PathVariable Long id, @Valid @RequestBody DaycareUpdateRequest request) {
+        return ResponseEntity.ok(daycareService.updateDaycare(id, request));
     }
 
     @GetMapping("/{id}")
-    public DaycareResponse getDaycareById(@PathVariable Long id) {
-        return daycareService.getDaycareById(id);
+    public ResponseEntity<DaycareResponse> getDaycareById(@PathVariable Long id) {
+        return ResponseEntity.ok(daycareService.getDaycareById(id));
     }
 
     @GetMapping
-    public List<DaycareResponse> getAllDaycares() {
-        return daycareService.getAllDaycares();
-    }
-
-    @PutMapping("/{id}")
-    public DaycareResponse updateDaycare(@PathVariable Long id,
-                                         @Valid @RequestBody DaycareUpdateRequest request) {
-        return daycareService.updateDaycare(id, request);
+    public ResponseEntity<List<DaycareResponse>> getAllDaycares() {
+        return ResponseEntity.ok(daycareService.getAllDaycares());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDaycare(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteDaycare(@PathVariable Long id) {
         daycareService.deleteDaycare(id);
+        return ResponseEntity.noContent().build();
     }
 }

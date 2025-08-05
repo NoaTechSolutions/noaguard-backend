@@ -9,11 +9,12 @@ public class DaycareResponse {
     private String logoUrl;
     private String phone;
     private String email;
-    private AddressResponse address;
     private Long adminId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String updatedBy;
+
+    private AddressResponse address;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -30,9 +31,6 @@ public class DaycareResponse {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public AddressResponse getAddress() { return address; }
-    public void setAddress(AddressResponse address) { this.address = address; }
-
     public Long getAdminId() { return adminId; }
     public void setAdminId(Long adminId) { this.adminId = adminId; }
 
@@ -44,4 +42,7 @@ public class DaycareResponse {
 
     public String getUpdatedBy() { return updatedBy; }
     public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
+
+    public AddressResponse getAddress() { return address; }
+    public void setAddress(AddressResponse address) { this.address = address; }
 }

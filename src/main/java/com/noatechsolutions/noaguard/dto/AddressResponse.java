@@ -1,63 +1,37 @@
 package com.noatechsolutions.noaguard.dto;
 
-import com.noatechsolutions.noaguard.entity.Address;
-
 public class AddressResponse {
+
+    private Long id;
     private String street;
     private String city;
     private String state;
     private String zipCode;
     private String country;
+    private Long entityId;
+    private String entityType;
 
-    public AddressResponse() {}
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public AddressResponse(String street, String city, String state, String zipCode, String country) {
-        this.street = street;
-        this.city = city;
-        this.state = state;
-        this.zipCode = zipCode;
-        this.country = country;
-    }
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
 
-    // Getters y setters
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
-    public String getStreet() {
-        return street;
-    }
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
 
-    public void setStreet(String street) {
-        this.street = street;
-    }
+    public String getZipCode() { return zipCode; }
+    public void setZipCode(String zipCode) { this.zipCode = zipCode; }
 
-    public String getCity() {
-        return city;
-    }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
+    public Long getEntityId() { return entityId; }
+    public void setEntityId(Long entityId) { this.entityId = entityId; }
 
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
 }

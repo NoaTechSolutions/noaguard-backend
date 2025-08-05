@@ -1,6 +1,5 @@
 package com.noatechsolutions.noaguard.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,11 +19,9 @@ public class DaycareRequest {
     @Email
     private String email;
 
-    @Valid
-    private AddressRequest address; // ✅ Ahora usamos DTO
-
-    // Solo requerido si el creador es SUPER_ADMIN
     private Long adminId;
+
+    private AddressRequest address;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -38,9 +35,9 @@ public class DaycareRequest {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public AddressRequest getAddress() { return address; }
-    public void setAddress(AddressRequest address) { this.address = address; }
-
     public Long getAdminId() { return adminId; }
     public void setAdminId(Long adminId) { this.adminId = adminId; }
+
+    public AddressRequest getAddress() { return address; }
+    public void setAddress(AddressRequest address) { this.address = address; }
 }

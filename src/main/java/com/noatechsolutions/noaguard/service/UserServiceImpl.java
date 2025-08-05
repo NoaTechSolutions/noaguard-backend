@@ -3,9 +3,12 @@ package com.noatechsolutions.noaguard.service;
 import com.noatechsolutions.noaguard.dto.UserRequest;
 import com.noatechsolutions.noaguard.dto.UserResponse;
 import com.noatechsolutions.noaguard.dto.UserUpdateRequest;
+import com.noatechsolutions.noaguard.entity.Address;
 import com.noatechsolutions.noaguard.entity.Role;
 import com.noatechsolutions.noaguard.entity.User;
 import com.noatechsolutions.noaguard.enums.RoleType;
+import com.noatechsolutions.noaguard.mapper.AddressMapper;
+import com.noatechsolutions.noaguard.repository.AddressRepository;
 import com.noatechsolutions.noaguard.repository.RoleRepository;
 import com.noatechsolutions.noaguard.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,14 +27,21 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           AddressRepository addressRepository,
+                           AddressMapper addressMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.addressRepository = addressRepository;
+        this.addressMapper = addressMapper;
     }
+
 
     @Override
     public UserResponse createUser(UserRequest request) {
@@ -58,7 +68,7 @@ public class UserServiceImpl implements UserService {
         // Crear usuario
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Ahora siempre encriptamos
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setNickname(request.getNickname());
@@ -69,8 +79,23 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
 
         User savedUser = userRepository.save(user);
+
+        // 👇 Guardar dirección opcional
+        if (request.getAddress() != null) {
+            Address address = new Address();
+            address.setStreet(request.getAddress().getStreet());
+            address.setCity(request.getAddress().getCity());
+            address.setState(request.getAddress().getState());
+            address.setZipCode(request.getAddress().getZipCode());
+            address.setCountry(request.getAddress().getCountry());
+            address.setEntityId(savedUser.getId());
+            address.setEntityType("USER");
+            addressRepository.save(address);
+        }
+
         return toResponse(savedUser);
     }
+
 
     @Override
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
@@ -92,9 +117,42 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
         user.setUpdatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
 
+        // ✅ Actualización parcial de dirección
+        if (request.getAddress() != null) {
+            List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("USER", user.getId());
+            if (!addresses.isEmpty()) {
+                Address existingAddress = addresses.get(0);
+
+                if (request.getAddress().getStreet() != null)
+                    existingAddress.setStreet(request.getAddress().getStreet());
+                if (request.getAddress().getCity() != null)
+                    existingAddress.setCity(request.getAddress().getCity());
+                if (request.getAddress().getState() != null)
+                    existingAddress.setState(request.getAddress().getState());
+                if (request.getAddress().getZipCode() != null)
+                    existingAddress.setZipCode(request.getAddress().getZipCode());
+                if (request.getAddress().getCountry() != null)
+                    existingAddress.setCountry(request.getAddress().getCountry());
+
+                addressRepository.save(existingAddress);
+            } else {
+                Address newAddress = new Address();
+                newAddress.setStreet(request.getAddress().getStreet());
+                newAddress.setCity(request.getAddress().getCity());
+                newAddress.setState(request.getAddress().getState());
+                newAddress.setZipCode(request.getAddress().getZipCode());
+                newAddress.setCountry(request.getAddress().getCountry());
+                newAddress.setEntityId(user.getId());
+                newAddress.setEntityType("USER");
+                addressRepository.save(newAddress);
+            }
+        }
+
         User updatedUser = userRepository.save(user);
         return toResponse(updatedUser);
     }
+
+
 
     @Override
     public UserResponse getUserById(Long id) {
@@ -152,8 +210,14 @@ public class UserServiceImpl implements UserService {
             response.setRoleId(user.getRole().getId());
         }
 
+        List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("USER", user.getId());
+        if (!addresses.isEmpty()) {
+            response.setAddress(addressMapper.toResponse(addresses.get(0)));
+        }
+
         return response;
     }
+
 
     @Override
     public UserResponse toggleUserActive(Long id) {

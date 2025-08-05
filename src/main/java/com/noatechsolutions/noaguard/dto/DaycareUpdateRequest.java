@@ -10,49 +10,28 @@ public class DaycareUpdateRequest {
     private String name;
 
     private String logoUrl;
-
     private String phone;
 
     @Email
     private String email;
 
-    @Valid
+    private Long adminId;
     private AddressRequest address;
 
-    // Solo para SUPER_ADMIN: cambiar admin de un daycare
-    private Long adminId;
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
-    public String getLogoUrl() {
-        return logoUrl;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setLogoUrl(String logoUrl) {
-        this.logoUrl = logoUrl;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public Long getAdminId() { return adminId; }
+    public void setAdminId(Long adminId) { this.adminId = adminId; }
 
     public AddressRequest getAddress() {
         return address;
@@ -60,13 +39,5 @@ public class DaycareUpdateRequest {
 
     public void setAddress(AddressRequest address) {
         this.address = address;
-    }
-
-    public Long getAdminId() {
-        return adminId;
-    }
-
-    public void setAdminId(Long adminId) {
-        this.adminId = adminId;
     }
 }

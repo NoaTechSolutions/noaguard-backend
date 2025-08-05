@@ -1,15 +1,16 @@
 package com.noatechsolutions.noaguard.entity;
 
-import com.noatechsolutions.noaguard.dto.AddressRequest;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Embeddable
+@Entity
+@Table(name = "tb_address")
 public class Address {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     @Size(max = 100)
@@ -31,20 +32,27 @@ public class Address {
     @Size(max = 50)
     private String country;
 
-    // Constructor vacío
-    public Address() {
+    @Column(nullable = false)
+    private Long entityId; // ID de Student, Daycare, Parent, etc.
+
+    @Column(nullable = false, length = 50)
+    private String entityType; // STUDENT, DAYCARE, PARENT, etc.
+
+    public Address() {}
+
+    public Address(String street, String city, String state, String zipCode, String country, Long entityId, String entityType) {
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.zipCode = zipCode;
+        this.country = country;
+        this.entityId = entityId;
+        this.entityType = entityType;
     }
 
-    // Constructor desde AddressRequest
-    public Address(AddressRequest request) {
-        this.street = request.getStreet();
-        this.city = request.getCity();
-        this.state = request.getState();
-        this.zipCode = request.getZipCode();
-        this.country = request.getCountry();
-    }
-
-    // Getters y setters
+    // Getters y Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getStreet() { return street; }
     public void setStreet(String street) { this.street = street; }
@@ -60,4 +68,10 @@ public class Address {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    public Long getEntityId() { return entityId; }
+    public void setEntityId(Long entityId) { this.entityId = entityId; }
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
 }

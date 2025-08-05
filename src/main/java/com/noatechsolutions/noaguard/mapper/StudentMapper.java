@@ -8,6 +8,7 @@ import com.noatechsolutions.noaguard.entity.Student;
 import com.noatechsolutions.noaguard.entity.User;
 import org.springframework.stereotype.Component;
 
+@Component
 public class StudentMapper {
 
     public static Student toEntity(StudentRequest request, Daycare daycare, User teacher, User daycareAdmin) {
@@ -18,7 +19,6 @@ public class StudentMapper {
         student.setLastName(request.getLastName());
         student.setNickname(request.getNickname());
         student.setBirthdate(request.getBirthdate());
-        student.setAddress(AddressMapper.toEntity(request.getAddress()));
         student.setDaycare(daycare);
         student.setTeacher(teacher);
         student.setDaycareAdmin(daycareAdmin);
@@ -32,7 +32,6 @@ public class StudentMapper {
         if (request.getLastName() != null) student.setLastName(request.getLastName());
         if (request.getNickname() != null) student.setNickname(request.getNickname());
         if (request.getBirthdate() != null) student.setBirthdate(request.getBirthdate());
-        if (request.getAddress() != null) student.setAddress(AddressMapper.toEntity(request.getAddress()));
         if (daycare != null) student.setDaycare(daycare);
         if (teacher != null) student.setTeacher(teacher);
         if (daycareAdmin != null) student.setDaycareAdmin(daycareAdmin);
@@ -47,16 +46,12 @@ public class StudentMapper {
         response.setLastName(student.getLastName());
         response.setNickname(student.getNickname());
         response.setBirthdate(student.getBirthdate());
-        response.setAddress(AddressMapper.toResponse(student.getAddress()));
-
         response.setDaycareId(student.getDaycare() != null ? student.getDaycare().getId() : null);
         response.setTeacherId(student.getTeacher() != null ? student.getTeacher().getId() : null);
         response.setDaycareAdminId(student.getDaycareAdmin() != null ? student.getDaycareAdmin().getId() : null);
-
         response.setCreatedAt(student.getCreatedAt());
         response.setUpdatedAt(student.getUpdatedAt());
-        response.setUpdatedBy(student.getUpdatedBy());
-
+        response.setUpdatedBy(student.getUpdatedBy()); // ✅ nuevo
         return response;
     }
 }

@@ -10,11 +10,13 @@ public interface ParentService {
 
     ParentResponse createParent(ParentRequest request);
 
+    ParentResponse updateParent(Long id, ParentUpdateRequest request);
+
     ParentResponse getParentById(Long id);
 
     List<ParentResponse> getAllParents();
 
-    ParentResponse updateParent(Long id, ParentUpdateRequest request);
+    List<ParentResponse> getParentsByStudentId(Long studentId);
 
     void deleteParent(Long id);
 }
