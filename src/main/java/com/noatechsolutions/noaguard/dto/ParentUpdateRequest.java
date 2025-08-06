@@ -1,8 +1,8 @@
 package com.noatechsolutions.noaguard.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 public class ParentUpdateRequest {
 
@@ -10,77 +10,57 @@ public class ParentUpdateRequest {
     private String firstName;
 
     @Size(max = 50)
+    private String middleName;
+
+    @Size(max = 50)
     private String lastName;
 
-    @Email
-    private String email;
+    @Size(max = 50)
+    private String relationshipToStudent;
 
     @Size(max = 20)
     private String phone;
 
-    @Valid
-    private AddressRequest address;
+    @Size(max = 20)
+    private String workPhone;
 
-    private Long daycareId;
+    @Size(max = 100)
+    private String occupation;
 
-    private Long studentId;
+    @Email
+    private String email;
 
-    public ParentUpdateRequest() {
-    }
+    private AddressUpdateRequest address;
 
-    public String getFirstName() {
-        return firstName;
-    }
+    private List<Long> studentIds;
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public String getLastName() {
-        return lastName;
-    }
+    public String getMiddleName() { return middleName; }
+    public void setMiddleName(String middleName) { this.middleName = middleName; }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getRelationshipToStudent() { return relationshipToStudent; }
+    public void setRelationshipToStudent(String relationshipToStudent) { this.relationshipToStudent = relationshipToStudent; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
-    public String getPhone() {
-        return phone;
-    }
+    public String getWorkPhone() { return workPhone; }
+    public void setWorkPhone(String workPhone) { this.workPhone = workPhone; }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
+    public String getOccupation() { return occupation; }
+    public void setOccupation(String occupation) { this.occupation = occupation; }
 
-    public AddressRequest getAddress() {
-        return address;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setAddress(AddressRequest address) {
-        this.address = address;
-    }
+    public AddressUpdateRequest getAddress() { return address; }
+    public void setAddress(AddressUpdateRequest address) { this.address = address; }
 
-    public Long getDaycareId() {
-        return daycareId;
-    }
-
-    public void setDaycareId(Long daycareId) {
-        this.daycareId = daycareId;
-    }
-
-    public Long getStudentId() {
-        return studentId;
-    }
-
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
+    public List<Long> getStudentIds() { return studentIds; }
+    public void setStudentIds(List<Long> studentIds) { this.studentIds = studentIds; }
 }

@@ -13,6 +13,7 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long roleId;
+    private AddressResponse address;
 
     public UserResponse() {}
 
@@ -87,4 +88,6 @@ public class UserResponse {
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
+    public AddressResponse getAddress() { return address; }
+    public void setAddress(AddressResponse address) { this.address = address; }
 }

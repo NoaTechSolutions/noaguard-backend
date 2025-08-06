@@ -10,46 +10,28 @@ public class DaycareUpdateRequest {
     private String name;
 
     private String logoUrl;
-
     private String phone;
 
     @Email
     private String email;
 
-    @Valid
+    private Long adminId;
     private AddressRequest address;
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
-    public String getLogoUrl() {
-        return logoUrl;
-    }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
-    public void setLogoUrl(String logoUrl) {
-        this.logoUrl = logoUrl;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public Long getAdminId() { return adminId; }
+    public void setAdminId(Long adminId) { this.adminId = adminId; }
 
     public AddressRequest getAddress() {
         return address;

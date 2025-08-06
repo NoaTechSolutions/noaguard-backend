@@ -2,32 +2,26 @@ package com.noatechsolutions.noaguard.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class StudentResponse {
 
     private Long id;
-
     private String firstName;
-
     private String lastName;
-
     private String nickname;
-
     private LocalDate birthdate;
-
-    private AddressResponse address;
-
     private Long daycareId;
-
     private Long teacherId;
-
     private Long daycareAdminId;
-
+    private List<Long> parentIds;
+    private boolean active; // Nuevo campo
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     private String updatedBy;
+    private AddressResponse address;
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     public Long getId() {
         return id;
@@ -69,14 +63,6 @@ public class StudentResponse {
         this.birthdate = birthdate;
     }
 
-    public AddressResponse getAddress() {
-        return address;
-    }
-
-    public void setAddress(AddressResponse address) {
-        this.address = address;
-    }
-
     public Long getDaycareId() {
         return daycareId;
     }
@@ -101,6 +87,14 @@ public class StudentResponse {
         this.daycareAdminId = daycareAdminId;
     }
 
+    public List<Long> getParentIds() {
+        return parentIds;
+    }
+
+    public void setParentIds(List<Long> parentIds) {
+        this.parentIds = parentIds;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -123,5 +117,13 @@ public class StudentResponse {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public AddressResponse getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressResponse address) {
+        this.address = address;
     }
 }

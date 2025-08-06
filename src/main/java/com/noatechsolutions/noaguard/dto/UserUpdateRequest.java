@@ -23,6 +23,8 @@ public class UserUpdateRequest {
     private Boolean active;
 
     private Long roleId;
+    private AddressRequest address;
+
 
     // Getters y Setters
 
@@ -80,5 +82,13 @@ public class UserUpdateRequest {
 
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
+    }
+
+    public AddressRequest getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressRequest address) {
+        this.address = address;
     }
 }

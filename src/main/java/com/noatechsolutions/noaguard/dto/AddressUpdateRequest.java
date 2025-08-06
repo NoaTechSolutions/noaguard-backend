@@ -1,18 +1,23 @@
 package com.noatechsolutions.noaguard.dto;
 
-public class AddressResponse {
+import jakarta.validation.constraints.Size;
 
-    private Long id;
+public class AddressUpdateRequest {
+
+    @Size(max = 100)
     private String street;
-    private String city;
-    private String state;
-    private String zipCode;
-    private String country;
-    private Long entityId;
-    private String entityType;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Size(max = 50)
+    private String city;
+
+    @Size(max = 50)
+    private String state;
+
+    @Size(max = 20)
+    private String zipCode;
+
+    @Size(max = 50)
+    private String country;
 
     public String getStreet() { return street; }
     public void setStreet(String street) { this.street = street; }
@@ -28,10 +33,4 @@ public class AddressResponse {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
-
-    public Long getEntityId() { return entityId; }
-    public void setEntityId(Long entityId) { this.entityId = entityId; }
-
-    public String getEntityType() { return entityType; }
-    public void setEntityType(String entityType) { this.entityType = entityType; }
 }

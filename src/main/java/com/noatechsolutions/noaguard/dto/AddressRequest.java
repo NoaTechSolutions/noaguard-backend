@@ -18,14 +18,17 @@ public class AddressRequest {
     private String state;
 
     @NotBlank
-    @Size(max = 10)
+    @Size(max = 20)
     private String zipCode;
 
     @NotBlank
     @Size(max = 50)
     private String country;
 
-    // Getters y Setters
+    // Eliminamos las validaciones para que no se pidan en el request
+    private Long entityId;
+    private String entityType;
+
     public String getStreet() { return street; }
     public void setStreet(String street) { this.street = street; }
 
@@ -40,4 +43,10 @@ public class AddressRequest {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    public Long getEntityId() { return entityId; }
+    public void setEntityId(Long entityId) { this.entityId = entityId; }
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
 }

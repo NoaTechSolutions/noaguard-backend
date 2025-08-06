@@ -1,14 +1,8 @@
 package com.noatechsolutions.noaguard.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,23 +15,17 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String firstName;
 
-    @NotBlank
-    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Size(max = 50)
+    @Column(length = 50)
     private String nickname;
 
     @PastOrPresent
     private LocalDate birthdate;
-
-    @Embedded
-    @Valid
-    private Address address;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "daycare_id", nullable = false)
@@ -51,16 +39,18 @@ public class Student {
     @JoinColumn(name = "daycare_admin_id")
     private User daycareAdmin;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "students")
     private List<Parent> parents;
 
+    @Column(nullable = false)
+    private boolean active = true; // Nuevo campo
+
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     private String updatedBy;
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -99,14 +89,6 @@ public class Student {
 
     public void setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
     }
 
     public Daycare getDaycare() {

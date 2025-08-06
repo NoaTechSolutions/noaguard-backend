@@ -8,8 +8,9 @@ import java.util.List;
 
 public interface StudentService {
     StudentResponse createStudent(StudentRequest request);
+    StudentResponse updateStudent(Long id, StudentUpdateRequest request);
     StudentResponse getStudentById(Long id);
     List<StudentResponse> getAllStudents();
-    StudentResponse updateStudent(Long id, StudentUpdateRequest request);
     void deleteStudent(Long id);
+    StudentResponse toggleStudentActive(Long id);
 }

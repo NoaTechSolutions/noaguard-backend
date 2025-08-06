@@ -22,39 +22,53 @@ public class ParentController {
         this.parentService = parentService;
     }
 
-    // Crear nuevo padre
+    // Crear Parent (con o sin dirección)
     @PostMapping
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','DAYCARE_ADMIN','TEACHER')")
     public ResponseEntity<ParentResponse> createParent(@Valid @RequestBody ParentRequest request) {
-        ParentResponse createdParent = parentService.createParent(request);
-        return new ResponseEntity<>(createdParent, HttpStatus.CREATED);
+        ParentResponse response = parentService.createParent(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // Obtener todos los padres
+    // Actualizar Parent parcialmente
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','DAYCARE_ADMIN','TEACHER')")
+    public ResponseEntity<ParentResponse> updateParent(
+            @PathVariable Long id,
+            @Valid @RequestBody ParentUpdateRequest request) {
+        ParentResponse response = parentService.updateParent(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // Obtener Parent por ID
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','DAYCARE_ADMIN','TEACHER')")
+    public ResponseEntity<ParentResponse> getParentById(@PathVariable Long id) {
+        ParentResponse response = parentService.getParentById(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // Listar todos los Parents
     @GetMapping
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','DAYCARE_ADMIN','TEACHER')")
     public ResponseEntity<List<ParentResponse>> getAllParents() {
         List<ParentResponse> parents = parentService.getAllParents();
-        return new ResponseEntity<>(parents, HttpStatus.OK);
+        return ResponseEntity.ok(parents);
     }
 
-    // Obtener un padre por id
-    @GetMapping("/{id}")
-    public ResponseEntity<ParentResponse> getParentById(@PathVariable Long id) {
-        ParentResponse parent = parentService.getParentById(id);
-        return new ResponseEntity<>(parent, HttpStatus.OK);
+    // Listar Parents por Student ID
+    @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','DAYCARE_ADMIN','TEACHER')")
+    public ResponseEntity<List<ParentResponse>> getParentsByStudentId(@PathVariable Long studentId) {
+        List<ParentResponse> parents = parentService.getParentsByStudentId(studentId);
+        return ResponseEntity.ok(parents);
     }
 
-    // Actualizar parcialmente un padre
-    @PatchMapping("/{id}")
-    public ResponseEntity<ParentResponse> updateParent(@PathVariable Long id,
-                                                       @Valid @RequestBody ParentUpdateRequest request) {
-        ParentResponse updatedParent = parentService.updateParent(id, request);
-        return new ResponseEntity<>(updatedParent, HttpStatus.OK);
-    }
-
-    // Eliminar un padre
+    // Eliminar Parent
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','DAYCARE_ADMIN','TEACHER')")
     public ResponseEntity<Void> deleteParent(@PathVariable Long id) {
         parentService.deleteParent(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 }

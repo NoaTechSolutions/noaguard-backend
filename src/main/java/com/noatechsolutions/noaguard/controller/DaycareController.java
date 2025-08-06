@@ -23,31 +23,32 @@ public class DaycareController {
 
     @PostMapping
     public ResponseEntity<DaycareResponse> createDaycare(@Valid @RequestBody DaycareRequest request) {
-        DaycareResponse response = daycareService.createDaycare(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(daycareService.createDaycare(request), HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DaycareResponse> updateDaycare(@PathVariable Long id, @Valid @RequestBody DaycareUpdateRequest request) {
+        return ResponseEntity.ok(daycareService.updateDaycare(id, request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DaycareResponse> getDaycareById(@PathVariable Long id) {
-        DaycareResponse response = daycareService.getDaycareById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(daycareService.getDaycareById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<DaycareResponse>> getAllDaycares() {
-        List<DaycareResponse> list = daycareService.getAllDaycares();
-        return ResponseEntity.ok(list);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<DaycareResponse> updateDaycare(@PathVariable Long id, @Valid @RequestBody DaycareUpdateRequest request) {
-        DaycareResponse response = daycareService.updateDaycare(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(daycareService.getAllDaycares());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDaycare(@PathVariable Long id) {
         daycareService.deleteDaycare(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<DaycareResponse> toggleDaycareActive(@PathVariable Long id) {
+        return ResponseEntity.ok(daycareService.toggleDaycareActive(id));
     }
 }

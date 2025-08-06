@@ -17,4 +17,5 @@ public interface UserService {
     List<UserResponse> getAllUsers();
 
     void deleteUser(Long id);
+    UserResponse toggleUserActive(Long id);
 }

@@ -62,4 +62,12 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Activar/desactivar usuario
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<UserResponse> toggleUserActive(@PathVariable Long id) {
+        UserResponse response = userService.toggleUserActive(id);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -1,46 +1,24 @@
 package com.noatechsolutions.noaguard.dto;
 
-import com.noatechsolutions.noaguard.entity.Address;
-
 import java.time.LocalDateTime;
-
+import java.util.List;
 
 public class ParentResponse {
 
     private Long id;
     private String firstName;
+    private String middleName;
     private String lastName;
-    private String email;
+    private String relationshipToStudent;
     private String phone;
-
+    private String workPhone;
+    private String occupation;
+    private String email;
+    private List<Long> studentIds;
     private AddressResponse address;
-
-    private Long daycareId;   // Solo ID
-    private Long studentId;   // Solo ID
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     private String updatedBy;
-
-    public ParentResponse() {}
-
-    public ParentResponse(Long id, String firstName, String lastName, String email, String phone,
-                          AddressResponse address, Long daycareId, Long studentId,
-                          LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.daycareId = daycareId;
-        this.studentId = studentId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    // Getters y Setters
 
     public Long getId() {
         return id;
@@ -58,6 +36,14 @@ public class ParentResponse {
         this.firstName = firstName;
     }
 
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -66,12 +52,12 @@ public class ParentResponse {
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getRelationshipToStudent() {
+        return relationshipToStudent;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setRelationshipToStudent(String relationshipToStudent) {
+        this.relationshipToStudent = relationshipToStudent;
     }
 
     public String getPhone() {
@@ -82,28 +68,44 @@ public class ParentResponse {
         this.phone = phone;
     }
 
+    public String getWorkPhone() {
+        return workPhone;
+    }
+
+    public void setWorkPhone(String workPhone) {
+        this.workPhone = workPhone;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<Long> getStudentIds() {
+        return studentIds;
+    }
+
+    public void setStudentIds(List<Long> studentIds) {
+        this.studentIds = studentIds;
+    }
+
     public AddressResponse getAddress() {
         return address;
     }
 
     public void setAddress(AddressResponse address) {
         this.address = address;
-    }
-
-    public Long getDaycareId() {
-        return daycareId;
-    }
-
-    public void setDaycareId(Long daycareId) {
-        this.daycareId = daycareId;
-    }
-
-    public Long getStudentId() {
-        return studentId;
-    }
-
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
     }
 
     public LocalDateTime getCreatedAt() {

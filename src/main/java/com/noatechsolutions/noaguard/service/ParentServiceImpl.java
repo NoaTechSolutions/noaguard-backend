@@ -1,16 +1,20 @@
 package com.noatechsolutions.noaguard.service;
 
-import com.noatechsolutions.noaguard.dto.*;
+import com.noatechsolutions.noaguard.dto.ParentRequest;
+import com.noatechsolutions.noaguard.dto.ParentResponse;
+import com.noatechsolutions.noaguard.dto.ParentUpdateRequest;
 import com.noatechsolutions.noaguard.entity.Address;
-import com.noatechsolutions.noaguard.entity.Daycare;
 import com.noatechsolutions.noaguard.entity.Parent;
 import com.noatechsolutions.noaguard.entity.Student;
 import com.noatechsolutions.noaguard.exception.ResourceNotFoundException;
-import com.noatechsolutions.noaguard.repository.DaycareRepository;
+import com.noatechsolutions.noaguard.mapper.AddressMapper;
+import com.noatechsolutions.noaguard.mapper.ParentMapper;
+import com.noatechsolutions.noaguard.repository.AddressRepository;
 import com.noatechsolutions.noaguard.repository.ParentRepository;
 import com.noatechsolutions.noaguard.repository.StudentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,148 +27,143 @@ public class ParentServiceImpl implements ParentService {
 
     private final ParentRepository parentRepository;
     private final StudentRepository studentRepository;
-    private final DaycareRepository daycareRepository;
+    private final ParentMapper parentMapper;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
 
-    public ParentServiceImpl(ParentRepository parentRepository,
-                             StudentRepository studentRepository,
-                             DaycareRepository daycareRepository) {
+    public ParentServiceImpl(
+            ParentRepository parentRepository,
+            StudentRepository studentRepository,
+            ParentMapper parentMapper,
+            AddressRepository addressRepository,
+            AddressMapper addressMapper
+    ) {
         this.parentRepository = parentRepository;
         this.studentRepository = studentRepository;
-        this.daycareRepository = daycareRepository;
+        this.parentMapper = parentMapper;
+        this.addressRepository = addressRepository;
+        this.addressMapper = addressMapper;
     }
 
     @Override
     public ParentResponse createParent(ParentRequest request) {
-        // Buscar entidades relacionadas por id
-        Student student = studentRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + request.getStudentId()));
-
-        Daycare daycare = daycareRepository.findById(request.getDaycareId())
-                .orElseThrow(() -> new ResourceNotFoundException("Daycare not found with id " + request.getDaycareId()));
-
-        Parent parent = new Parent();
-        parent.setFirstName(request.getFirstName());
-        parent.setLastName(request.getLastName());
-        parent.setEmail(request.getEmail());
-        parent.setPhone(request.getPhone());
-
-        if (request.getAddress() != null) {
-            Address address = new Address();
-            address.setStreet(request.getAddress().getStreet());
-            address.setCity(request.getAddress().getCity());
-            address.setState(request.getAddress().getState());
-            address.setZipCode(request.getAddress().getZipCode());
-            address.setCountry(request.getAddress().getCountry());
-            parent.setAddress(address);
+        if (request.getStudentIds() == null || request.getStudentIds().isEmpty()) {
+            throw new RuntimeException("At least one student ID is required");
         }
 
-        parent.setDaycare(daycare);
-        parent.setStudent(student);
+        List<Student> students = studentRepository.findAllById(request.getStudentIds());
+        if (students.size() != request.getStudentIds().size()) {
+            throw new RuntimeException("Some students not found");
+        }
 
-        LocalDateTime now = LocalDateTime.now();
-        parent.setCreatedAt(now);
-        parent.setUpdatedAt(now);
-        // parent.setUpdatedBy(...); // Asigna según contexto actual
+        Parent parent = parentMapper.toEntity(request, students);
+
+        // Asignar daycare automáticamente desde el primer estudiante
+        if (!students.isEmpty()) {
+            parent.setDaycare(students.get(0).getDaycare());
+        }
+
+        parent.setCreatedAt(LocalDateTime.now());
+        parent.setUpdatedAt(LocalDateTime.now());
+        parent.setUpdatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Parent savedParent = parentRepository.save(parent);
 
-        return mapToParentResponse(savedParent);
+        // Guardar dirección si existe
+        if (request.getAddress() != null) {
+            Address address = addressMapper.toEntity(request.getAddress());
+            address.setEntityType("PARENT");
+            address.setEntityId(savedParent.getId());
+            addressRepository.save(address);
+        }
+
+        // 📌 Traer de nuevo el Parent con la dirección para la respuesta
+        return toResponse(savedParent);
     }
 
-    @Override
-    public ParentResponse getParentById(Long id) {
-        Parent parent = parentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parent not found with id " + id));
-        return mapToParentResponse(parent);
-    }
-
-    @Override
-    public List<ParentResponse> getAllParents() {
-        return parentRepository.findAll().stream()
-                .map(this::mapToParentResponse)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public ParentResponse updateParent(Long id, ParentUpdateRequest request) {
         Parent parent = parentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parent not found with id " + id));
 
-        if (request.getFirstName() != null) parent.setFirstName(request.getFirstName());
-        if (request.getLastName() != null) parent.setLastName(request.getLastName());
-        if (request.getEmail() != null) parent.setEmail(request.getEmail());
-        if (request.getPhone() != null) parent.setPhone(request.getPhone());
+        List<Student> students = null;
+        if (request.getStudentIds() != null) {
+            students = studentRepository.findAllById(request.getStudentIds());
+            if (students.size() != request.getStudentIds().size()) {
+                throw new RuntimeException("Some students not found");
+            }
 
-        if (request.getAddress() != null) {
-            AddressRequest ar = request.getAddress();
-            Address address = parent.getAddress() != null ? parent.getAddress() : new Address();
-            if (ar.getStreet() != null) address.setStreet(ar.getStreet());
-            if (ar.getCity() != null) address.setCity(ar.getCity());
-            if (ar.getState() != null) address.setState(ar.getState());
-            if (ar.getZipCode() != null) address.setZipCode(ar.getZipCode());
-            if (ar.getCountry() != null) address.setCountry(ar.getCountry());
-            parent.setAddress(address);
+            // Actualizar daycare si cambian los estudiantes
+            if (!students.isEmpty()) {
+                parent.setDaycare(students.get(0).getDaycare());
+            }
         }
 
-        if (request.getStudentId() != null) {
-            Student student = studentRepository.findById(request.getStudentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + request.getStudentId()));
-            parent.setStudent(student);
-        }
-
-        if (request.getDaycareId() != null) {
-            Daycare daycare = daycareRepository.findById(request.getDaycareId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Daycare not found with id " + request.getDaycareId()));
-            parent.setDaycare(daycare);
-        }
-
+        parentMapper.updateEntity(parent, request, students);
         parent.setUpdatedAt(LocalDateTime.now());
-        // parent.setUpdatedBy(...); // asignar si tienes info
+        parent.setUpdatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        Parent updatedParent = parentRepository.save(parent);
+        // Actualizar o crear dirección
+        if (request.getAddress() != null) {
+            List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("PARENT", parent.getId());
+            if (!addresses.isEmpty()) {
+                Address existing = addresses.get(0);
+                if (request.getAddress().getStreet() != null) existing.setStreet(request.getAddress().getStreet());
+                if (request.getAddress().getCity() != null) existing.setCity(request.getAddress().getCity());
+                if (request.getAddress().getState() != null) existing.setState(request.getAddress().getState());
+                if (request.getAddress().getZipCode() != null) existing.setZipCode(request.getAddress().getZipCode());
+                if (request.getAddress().getCountry() != null) existing.setCountry(request.getAddress().getCountry());
+                addressRepository.save(existing);
+            } else {
+                Address newAddress = addressMapper.toEntity(request.getAddress());
+                newAddress.setEntityId(parent.getId());
+                newAddress.setEntityType("PARENT");
+                addressRepository.save(newAddress);
+            }
+        }
 
-        return mapToParentResponse(updatedParent);
+        Parent updated = parentRepository.save(parent);
+        return toResponse(updated);
+    }
+
+    @Override
+    public ParentResponse getParentById(Long id) {
+        Parent parent = parentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Parent not found with id " + id));
+        return toResponse(parent);
+    }
+
+    @Override
+    public List<ParentResponse> getAllParents() {
+        return parentRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ParentResponse> getParentsByStudentId(Long studentId) {
+        return parentRepository.findByStudentId(studentId)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void deleteParent(Long id) {
-        Parent parent = parentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parent not found with id " + id));
-        parentRepository.delete(parent);
+        if (!parentRepository.existsById(id)) {
+            throw new EntityNotFoundException("Parent not found with id " + id);
+        }
+        parentRepository.deleteById(id);
     }
 
-    private ParentResponse mapToParentResponse(Parent parent) {
-        ParentResponse response = new ParentResponse();
-        response.setId(parent.getId());
-        response.setFirstName(parent.getFirstName());
-        response.setLastName(parent.getLastName());
-        response.setEmail(parent.getEmail());
-        response.setPhone(parent.getPhone());
-
-        if (parent.getAddress() != null) {
-            Address a = parent.getAddress();
-            AddressResponse ar = new AddressResponse(
-                    a.getStreet(),
-                    a.getCity(),
-                    a.getState(),
-                    a.getZipCode(),
-                    a.getCountry()
-            );
-            response.setAddress(ar);
+    private ParentResponse toResponse(Parent parent) {
+        ParentResponse response = parentMapper.toResponse(parent);
+        List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("PARENT", parent.getId());
+        if (!addresses.isEmpty()) {
+            response.setAddress(addressMapper.toResponse(addresses.get(0)));
         }
-
-        if (parent.getDaycare() != null) {
-            response.setDaycareId(parent.getDaycare().getId());
-        }
-
-        if (parent.getStudent() != null) {
-            response.setStudentId(parent.getStudent().getId());
-        }
-
-        response.setCreatedAt(parent.getCreatedAt());
-        response.setUpdatedAt(parent.getUpdatedAt());
-        response.setUpdatedBy(parent.getUpdatedBy());
-
         return response;
     }
 }
