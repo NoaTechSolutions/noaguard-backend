@@ -1,6 +1,7 @@
 package com.noatechsolutions.noaguard.security.auth;
 
 import com.noatechsolutions.noaguard.entity.User;
+import com.noatechsolutions.noaguard.exception.CustomAuthException; // ✅ Agregado
 import com.noatechsolutions.noaguard.exception.ResourceNotFoundException;
 import com.noatechsolutions.noaguard.repository.UserRepository;
 import com.noatechsolutions.noaguard.security.jwt.JwtService;
@@ -43,6 +44,11 @@ public class AuthController {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // ✅ Validar si el Daycare está inactivo
+        if (user.getDaycare() != null && !user.getDaycare().isActive()) {
+            throw new CustomAuthException(4031, "Daycare is inactive");
+        }
 
         String jwt = jwtService.generateToken(
                 userDetails.getUsername(),

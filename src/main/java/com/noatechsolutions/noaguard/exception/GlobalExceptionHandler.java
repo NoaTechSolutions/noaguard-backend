@@ -12,6 +12,15 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ✅ Maneja CustomAuthException (como Daycare inactivo)
+    @ExceptionHandler(CustomAuthException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomAuthException(CustomAuthException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("code", ex.getCode());
+        error.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
     // Maneja ResourceNotFoundException (ej: "Parent not found")
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
