@@ -54,6 +54,9 @@ public class StudentServiceImpl implements StudentService {
         student.setNickname(request.getNickname());
         student.setBirthdate(request.getBirthdate());
 
+        // ✅ Estado activo por defecto
+        student.setActive(request.getActive() != null ? request.getActive() : true);
+
         Daycare daycare = daycareRepository.findById(request.getDaycareId())
                 .orElseThrow(() -> new ResourceNotFoundException("Daycare not found"));
         student.setDaycare(daycare);
@@ -84,12 +87,7 @@ public class StudentServiceImpl implements StudentService {
 
         // ✅ Guardar dirección si se envía
         if (request.getAddress() != null) {
-            Address address = new Address();
-            address.setStreet(request.getAddress().getStreet());
-            address.setCity(request.getAddress().getCity());
-            address.setState(request.getAddress().getState());
-            address.setZipCode(request.getAddress().getZipCode());
-            address.setCountry(request.getAddress().getCountry());
+            Address address = addressMapper.toEntity(request.getAddress());
             address.setEntityId(saved.getId());
             address.setEntityType("STUDENT");
             addressRepository.save(address);
@@ -97,6 +95,7 @@ public class StudentServiceImpl implements StudentService {
 
         return toResponse(saved);
     }
+
 
     @Override
     public StudentResponse updateStudent(Long id, StudentUpdateRequest request) {
@@ -107,6 +106,9 @@ public class StudentServiceImpl implements StudentService {
         if (request.getLastName() != null) student.setLastName(request.getLastName());
         if (request.getNickname() != null) student.setNickname(request.getNickname());
         if (request.getBirthdate() != null) student.setBirthdate(request.getBirthdate());
+
+        // ✅ Permitir cambio de estado
+        if (request.getActive() != null) student.setActive(request.getActive());
 
         if (request.getDaycareId() != null) {
             Daycare daycare = daycareRepository.findById(request.getDaycareId())
@@ -135,7 +137,7 @@ public class StudentServiceImpl implements StudentService {
         student.setUpdatedAt(LocalDateTime.now());
         student.setUpdatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        // ✅ Actualizar o crear dirección si se envía
+        // ✅ Actualizar/crear dirección
         if (request.getAddress() != null) {
             List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("STUDENT", student.getId());
             if (!addresses.isEmpty()) {
@@ -147,12 +149,7 @@ public class StudentServiceImpl implements StudentService {
                 if (request.getAddress().getCountry() != null) existingAddress.setCountry(request.getAddress().getCountry());
                 addressRepository.save(existingAddress);
             } else {
-                Address newAddress = new Address();
-                newAddress.setStreet(request.getAddress().getStreet());
-                newAddress.setCity(request.getAddress().getCity());
-                newAddress.setState(request.getAddress().getState());
-                newAddress.setZipCode(request.getAddress().getZipCode());
-                newAddress.setCountry(request.getAddress().getCountry());
+                Address newAddress = addressMapper.toEntity(request.getAddress());
                 newAddress.setEntityId(student.getId());
                 newAddress.setEntityType("STUDENT");
                 addressRepository.save(newAddress);
@@ -162,6 +159,7 @@ public class StudentServiceImpl implements StudentService {
         Student updated = studentRepository.save(student);
         return toResponse(updated);
     }
+
 
     @Override
     public StudentResponse getStudentById(Long id) {
@@ -186,6 +184,19 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.deleteById(id);
     }
 
+    @Override
+    public StudentResponse toggleStudentActive(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id " + id));
+
+        student.setActive(!student.isActive());
+        student.setUpdatedAt(LocalDateTime.now());
+        student.setUpdatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        Student updated = studentRepository.save(student);
+        return toResponse(updated);
+    }
+
     private StudentResponse toResponse(Student student) {
         StudentResponse response = new StudentResponse();
         response.setId(student.getId());
@@ -196,10 +207,11 @@ public class StudentServiceImpl implements StudentService {
         response.setDaycareId(student.getDaycare() != null ? student.getDaycare().getId() : null);
         response.setTeacherId(student.getTeacher() != null ? student.getTeacher().getId() : null);
         response.setDaycareAdminId(student.getDaycareAdmin() != null ? student.getDaycareAdmin().getId() : null);
+        response.setActive(student.isActive()); // Nuevo
         response.setCreatedAt(student.getCreatedAt());
         response.setUpdatedAt(student.getUpdatedAt());
+        response.setUpdatedBy(student.getUpdatedBy());
 
-        // ✅ Cargar dirección desde tb_address
         List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("STUDENT", student.getId());
         if (!addresses.isEmpty()) {
             response.setAddress(addressMapper.toResponse(addresses.get(0)));
@@ -207,4 +219,6 @@ public class StudentServiceImpl implements StudentService {
 
         return response;
     }
+
+
 }

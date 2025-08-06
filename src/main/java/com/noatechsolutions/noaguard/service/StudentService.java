@@ -12,4 +12,5 @@ public interface StudentService {
     StudentResponse getStudentById(Long id);
     List<StudentResponse> getAllStudents();
     void deleteStudent(Long id);
+    StudentResponse toggleStudentActive(Long id);
 }

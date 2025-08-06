@@ -46,4 +46,9 @@ public class StudentController {
         studentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<StudentResponse> toggleStudentActive(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.toggleStudentActive(id));
+    }
 }

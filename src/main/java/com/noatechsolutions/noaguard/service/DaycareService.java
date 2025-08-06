@@ -12,4 +12,5 @@ public interface DaycareService {
     DaycareResponse getDaycareById(Long id);
     List<DaycareResponse> getAllDaycares();
     void deleteDaycare(Long id);
+    DaycareResponse toggleDaycareActive(Long id);
 }

@@ -5,12 +5,14 @@ import com.noatechsolutions.noaguard.dto.DaycareResponse;
 import com.noatechsolutions.noaguard.dto.DaycareUpdateRequest;
 import com.noatechsolutions.noaguard.entity.Address;
 import com.noatechsolutions.noaguard.entity.Daycare;
+import com.noatechsolutions.noaguard.entity.Parent;
 import com.noatechsolutions.noaguard.entity.User;
 import com.noatechsolutions.noaguard.enums.RoleType;
 import com.noatechsolutions.noaguard.exception.ResourceNotFoundException;
 import com.noatechsolutions.noaguard.mapper.AddressMapper;
 import com.noatechsolutions.noaguard.repository.AddressRepository;
 import com.noatechsolutions.noaguard.repository.DaycareRepository;
+import com.noatechsolutions.noaguard.repository.ParentRepository;
 import com.noatechsolutions.noaguard.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,12 +31,20 @@ public class DaycareServiceImpl implements DaycareService {
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
 
-    public DaycareServiceImpl(DaycareRepository daycareRepository, UserRepository userRepository,AddressRepository addressRepository,
-                              AddressMapper addressMapper) {
+    private final ParentRepository parentRepository;
+
+    public DaycareServiceImpl(
+            DaycareRepository daycareRepository,
+            UserRepository userRepository,
+            AddressRepository addressRepository,
+            AddressMapper addressMapper,
+            ParentRepository parentRepository
+    ) {
         this.daycareRepository = daycareRepository;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.addressMapper = addressMapper;
+        this.parentRepository = parentRepository;
     }
 
     @Override
@@ -52,11 +62,11 @@ public class DaycareServiceImpl implements DaycareService {
         daycare.setLogoUrl(request.getLogoUrl());
         daycare.setPhone(request.getPhone());
         daycare.setEmail(request.getEmail());
+        daycare.setActive(true); // ✅ Nuevo
         daycare.setCreatedAt(LocalDateTime.now());
         daycare.setUpdatedAt(LocalDateTime.now());
         daycare.setUpdatedBy(currentEmail);
 
-        // Asignación de admin según el rol
         if (currentUser.getRole().getName() == RoleType.SUPER_ADMIN) {
             if (request.getAdminId() == null) {
                 throw new RuntimeException("Admin ID is required for SUPER_ADMIN");
@@ -73,10 +83,8 @@ public class DaycareServiceImpl implements DaycareService {
             throw new RuntimeException("You do not have permission to create a daycare");
         }
 
-        // Guardar Daycare primero para tener ID
         Daycare saved = daycareRepository.save(daycare);
 
-        // Guardar dirección si se envía
         if (request.getAddress() != null) {
             Address address = new Address();
             address.setStreet(request.getAddress().getStreet());
@@ -107,7 +115,6 @@ public class DaycareServiceImpl implements DaycareService {
         if (request.getPhone() != null) daycare.setPhone(request.getPhone());
         if (request.getEmail() != null) daycare.setEmail(request.getEmail());
 
-        // ✅ Mantener validación de cambio de admin solo por SUPER_ADMIN
         if (request.getAdminId() != null) {
             if (currentUser.getRole().getName() != RoleType.SUPER_ADMIN) {
                 throw new RuntimeException("Only SUPER_ADMIN can change the admin of a daycare");
@@ -120,31 +127,14 @@ public class DaycareServiceImpl implements DaycareService {
             daycare.setAdmin(adminUser);
         }
 
-        // ✅ Actualización parcial de dirección
         if (request.getAddress() != null) {
             List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("DAYCARE", daycare.getId());
             if (!addresses.isEmpty()) {
                 Address existingAddress = addresses.get(0);
-
-                if (request.getAddress().getStreet() != null)
-                    existingAddress.setStreet(request.getAddress().getStreet());
-                if (request.getAddress().getCity() != null)
-                    existingAddress.setCity(request.getAddress().getCity());
-                if (request.getAddress().getState() != null)
-                    existingAddress.setState(request.getAddress().getState());
-                if (request.getAddress().getZipCode() != null)
-                    existingAddress.setZipCode(request.getAddress().getZipCode());
-                if (request.getAddress().getCountry() != null)
-                    existingAddress.setCountry(request.getAddress().getCountry());
-
+                addressMapper.partialUpdate(existingAddress, request.getAddress());
                 addressRepository.save(existingAddress);
             } else {
-                Address newAddress = new Address();
-                newAddress.setStreet(request.getAddress().getStreet());
-                newAddress.setCity(request.getAddress().getCity());
-                newAddress.setState(request.getAddress().getState());
-                newAddress.setZipCode(request.getAddress().getZipCode());
-                newAddress.setCountry(request.getAddress().getCountry());
+                Address newAddress = addressMapper.toEntity(request.getAddress());
                 newAddress.setEntityId(daycare.getId());
                 newAddress.setEntityType("DAYCARE");
                 addressRepository.save(newAddress);
@@ -157,6 +147,43 @@ public class DaycareServiceImpl implements DaycareService {
         Daycare updated = daycareRepository.save(daycare);
         return toResponse(updated);
     }
+
+    @Override
+    public DaycareResponse toggleDaycareActive(Long id) {
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Current user not found"));
+
+        Daycare daycare = daycareRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Daycare not found"));
+
+        boolean newStatus = !daycare.isActive();
+        daycare.setActive(newStatus);
+        daycare.setUpdatedAt(LocalDateTime.now());
+        daycare.setUpdatedBy(currentEmail);
+
+        // 🔹 Cascada en USERS asociados al daycare
+        List<User> users = userRepository.findAllByDaycareId(daycare.getId());
+        users.forEach(user -> {
+            user.setActive(newStatus);
+            user.setUpdatedAt(LocalDateTime.now());
+            user.setUpdatedBy(currentEmail);
+        });
+        userRepository.saveAll(users);
+
+        // 🔹 Cascada en PARENTS asociados al daycare
+        List<Parent> parents = parentRepository.findAllByDaycareId(daycare.getId());
+        parents.forEach(parent -> {
+            parent.setActive(newStatus);
+            parent.setUpdatedAt(LocalDateTime.now());
+            parent.setUpdatedBy(currentEmail);
+        });
+        parentRepository.saveAll(parents);
+
+        Daycare updated = daycareRepository.save(daycare);
+        return toResponse(updated);
+    }
+
 
 
     @Override
@@ -204,6 +231,7 @@ public class DaycareServiceImpl implements DaycareService {
         response.setLogoUrl(daycare.getLogoUrl());
         response.setPhone(daycare.getPhone());
         response.setEmail(daycare.getEmail());
+        response.setActive(daycare.isActive()); // ✅ nuevo campo
 
         if (daycare.getAdmin() != null) {
             response.setAdminId(daycare.getAdmin().getId());
@@ -213,7 +241,6 @@ public class DaycareServiceImpl implements DaycareService {
         response.setUpdatedAt(daycare.getUpdatedAt());
         response.setUpdatedBy(daycare.getUpdatedBy());
 
-        // ✅ Obtener la dirección desde la tabla tb_address
         List<Address> addresses = addressRepository.findByEntityTypeAndEntityId("DAYCARE", daycare.getId());
         if (!addresses.isEmpty()) {
             response.setAddress(addressMapper.toResponse(addresses.get(0)));
@@ -221,5 +248,4 @@ public class DaycareServiceImpl implements DaycareService {
 
         return response;
     }
-
 }

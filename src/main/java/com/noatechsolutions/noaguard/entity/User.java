@@ -46,6 +46,10 @@ public class User {
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Daycare> daycares = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "daycare_id")
+    private Daycare daycare;
+
     // Constructores
 
     public User() {
@@ -157,5 +161,13 @@ public class User {
 
     public void setDaycares(List<Daycare> daycares) {
         this.daycares = daycares;
+    }
+
+    public Daycare getDaycare() {
+        return daycare;
+    }
+
+    public void setDaycare(Daycare daycare) {
+        this.daycare = daycare;
     }
 }

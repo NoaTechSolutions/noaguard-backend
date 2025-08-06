@@ -46,4 +46,9 @@ public class DaycareController {
         daycareService.deleteDaycare(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<DaycareResponse> toggleDaycareActive(@PathVariable Long id) {
+        return ResponseEntity.ok(daycareService.toggleDaycareActive(id));
+    }
 }

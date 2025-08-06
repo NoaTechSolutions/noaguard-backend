@@ -19,6 +19,7 @@ public class StudentUpdateRequest {
     private Long teacherId;
     private Long daycareAdminId;
     private AddressRequest address;
+    private Boolean active; // ✅ Nuevo campo
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -40,11 +41,10 @@ public class StudentUpdateRequest {
 
     public Long getDaycareAdminId() { return daycareAdminId; }
     public void setDaycareAdminId(Long daycareAdminId) { this.daycareAdminId = daycareAdminId; }
-    public AddressRequest getAddress() {
-        return address;
-    }
 
-    public void setAddress(AddressRequest address) {
-        this.address = address;
-    }
+    public AddressRequest getAddress() { return address; }
+    public void setAddress(AddressRequest address) { this.address = address; }
+
+    public Boolean getActive() { return active; }
+    public void setActive(Boolean active) { this.active = active; }
 }

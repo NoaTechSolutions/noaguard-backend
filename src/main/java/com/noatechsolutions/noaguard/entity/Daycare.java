@@ -27,6 +27,10 @@ public class Daycare {
     @Email
     private String email;
 
+    // ✅ Nuevo: estado activo/inactivo
+    @Column(nullable = false)
+    private boolean active = true;
+
     // Relación 1:1 con DAYCARE_ADMIN (User)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", nullable = false)
@@ -53,6 +57,9 @@ public class Daycare {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     public User getAdmin() { return admin; }
     public void setAdmin(User admin) { this.admin = admin; }

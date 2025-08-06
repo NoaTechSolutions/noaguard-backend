@@ -10,10 +10,10 @@ public class DaycareResponse {
     private String phone;
     private String email;
     private Long adminId;
+    private boolean active;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String updatedBy;
-
     private AddressResponse address;
 
     public Long getId() { return id; }
@@ -33,6 +33,9 @@ public class DaycareResponse {
 
     public Long getAdminId() { return adminId; }
     public void setAdminId(Long adminId) { this.adminId = adminId; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
